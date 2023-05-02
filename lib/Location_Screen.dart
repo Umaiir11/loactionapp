@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'globalVariables.dart';
+import 'googlemap.dart';
 class Location_screen extends StatefulWidget {
   const Location_screen({Key? key}) : super(key: key);
 
@@ -19,6 +25,9 @@ class _Location_screenState extends State<Location_screen> {
   void getCurrentLocation() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+    globalvariables.latitude = position.latitude;
+    globalvariables.latitude = position.longitude;
+
     List<Placemark> placemarks =
     await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
@@ -33,7 +42,6 @@ class _Location_screenState extends State<Location_screen> {
   void initState() {
     super.initState();
     FncPermissions();
-    getCurrentLocation();
   }
 
   @override
@@ -63,6 +71,12 @@ class _Location_screenState extends State<Location_screen> {
             'Address: $currentAddress',
             style: TextStyle(fontSize: 24),
           ),
+          SizedBox(height: 10),
+          ElevatedButton(onPressed:(){
+            Get.to(() =>  GoogleMapsScreen());
+
+          }, child: Text("Google Map"))
+
         ],
       ),
     );
@@ -78,6 +92,8 @@ class _Location_screenState extends State<Location_screen> {
         content: Text("Permission granted"),
         duration: Duration(milliseconds: 900),
       ));
+      getCurrentLocation();
+
     } else if (l_mediaPermission == PermissionStatus.denied) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("This permission is recommended."),
